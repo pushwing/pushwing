@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <!-- setting : 우측 환경설정 버튼 -->
+
+    <com.pushwing.ui.biz.BizTitlebar
+        android:id="@+id/bizTitlebar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        setting="true" >
+    </com.pushwing.ui.biz.BizTitlebar>
+
+    <ListView
+        android:id="@+id/lv_Main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_Admob"
+        android:layout_below="@+id/bizTitlebar" >
+    </ListView>
+
+    <LinearLayout
+        android:id="@+id/ll_Admob"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+</RelativeLayout>

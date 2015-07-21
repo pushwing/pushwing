@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">pushwing</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+    <!-- Setting_0101 -->
+    <string name="setting_0101_push_setting">푸시윙 알림 설정</string>
+    <string name="setting_0101_push_sound">소리</string>
+    <string name="setting_0101_push_vibrate">진동</string>
+    
+    <string name="setting_0101_nothing">푸시윙 실시간 알림을 해제하셨습니다.\n푸시윙 알림을 실시간으로 받아보시고 싶으시면, 오른쪽 위의 토글 버튼을 켜주세요.</string>
+
+</resources>

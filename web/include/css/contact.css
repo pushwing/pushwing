@@ -1,0 +1,89 @@
+/* modify bootstrap */
+.navbar {margin-bottom:0;}
+
+#navbar-top li a {line-height:36px;}
+
+/* common use */
+body {background-color:#eee; }
+h4 {
+    line-height:1.5em;
+}
+
+.marginTop10 { margin-top:10px; }
+.marginTop20 { margin-top:20px; }
+.marginTop30 { margin-top:30px; }
+.marginTop50 { margin-top:50px; }
+.marginTop100 { margin-top:100px; }
+
+.marginBottom30 { margin-bottom:30px; }
+.marginBottom50 { margin-bottom:50px; }
+
+.marginRight10 { margin-right : 10px; }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.color444 { color: #444;}
+
+/* custom */
+.white_container {
+    background-color: #fff;
+    margin-top:20px;
+    margin-bottom:20px;
+    padding:20px;
+    box-shadow: 3px 3px 5px #ddd;
+}
+
+#main_intro {
+    background-image: url('/img/bkg-6.jpg');
+    background-size:cover;
+    color:#fff;
+}
+
+#main_intro h1 {
+    margin-bottom:0px;
+    font-size:60px;
+}
+
+#main_intro h3 {
+    margin:0;
+    padding:0;
+}
+#example ul {
+    list-style:none;
+}
+
+#example li {
+    line-height:2em;
+}
+
+#example li strong {
+    font-size:17px;
+}
+
+#footer {
+    background-color: #eee;
+}
+
+#footer p {
+    padding:10px 0;
+}
+
+.download_btn {
+    width:150px;
+}
+
+/*************** DOCS ****************/
+#docs_wrap h1,
+#docs_wrap h2,
+#docs_wrap h3,
+#docs_wrap h4,
+#docs_wrap h5,
+#docs_wrap h6 {
+    font-weight:bold;
+}
+
+/********* Communication *********/
+#restriction {width:80%;}
+#restriction p { color:#888888; }

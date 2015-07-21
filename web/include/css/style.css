@@ -1,0 +1,40 @@
+body {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	/* background-image: url(../Common_img/index/body_bg.jpg); */
+	background-repeat: repeat-x;
+}
+
+td {font-family:Droid Sans; font-size: 12px; line-height: 17px; color: #737373; text-decoration: none;}
+A:link   	{color: #737373; text-decoration: none;}
+A:visited	{color: #737373; text-decoration: none;}
+A:active 	{color: #737373; text-decoration: none;}
+A:hover  	{color: #f69020; text-decoration: none;}
+
+
+
+/*** top_login***/
+.top_login {color: #f69020; font-size: 13px; font-weight: bold;}
+a.top_login:link   	{color: #f69020;}
+a.top_login:visited	{color: #f69020;}
+a.top_login:active 	{color: #f69020;}
+a.top_login:hover  	{color: #f69020;}
+
+/*** bot_white   ***/
+.white_b {color: #FFFFFF;font-weight: bold;}
+.white_b   A:link   	{color: #ffffff;}
+.white_b   A:visited	{color: #ffffff;}
+.white_b   A:active 	{color: #ffffff;}
+.white_b   A:hover  	{color: #ffffff;}
+
+/*** bot_white   ***/
+.white {color: #FFFFFF; font-size: 11px;;}
+.white  A:link   	{color: #ffffff;}
+.white  A:visited	{color: #ffffff;}
+.white  A:active 	{color: #ffffff;}
+.white  A:hover  	{color: #f69020;}
+
+
+.input {font-family: Droid Sans ; font-size:12px; color:#737373; border:2px solid #f69020; padding: 2px 4px 0px 4px; height: 24px;}

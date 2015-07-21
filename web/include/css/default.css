@@ -1,0 +1,265 @@
+/*
+Template name: Dirtylicious
+Template URI: http://templates.arcsin.se/dirtylicious-website-template/
+Release date: 2007-03-10
+Description: A soft-colored, bright and somewhat dirty two-column template.
+Author: Viktor Persson
+Author URI: http://arcsin.se/
+
+This template is licensed under a Creative Commons Attribution 2.5 License:
+http://templates.arcsin.se/license/
+*/
+
+/* standard elements */
+html {min-height: 100%;}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+a {color: #808080; text-decoration: none;}
+a:hover {color: #06C;}
+
+body {
+	/*background: #E7E7E2 url('/images/body.jpg') no-repeat center top;*/
+	color: #444;
+	font: normal 62.5% gulim,sans-serif;
+	padding-top: 30px;
+	/*padding-top: 64px;*/
+}
+
+p,code,ul {padding-bottom: 1.2em;}
+
+li {list-style: none;}
+
+h1 {font: normal 1.8em gulim,sans-serif;}
+h2 {font: bold 1.4em gulim;}
+h3 {font: bold 1em gulim,sans-serif;}
+
+form,input {margin: 0; padding: 0; display: inline;}
+
+codess {
+	background: #FFF;
+	border: 1px solid #EEE;
+	border-left: 6px solid #CCC;
+	color: #666;
+	display: block;
+	font: normal 1em Tahoma,sans-serif;
+	line-height: 1.6em;
+	margin-bottom: 12px;
+	padding: 8px 10px;
+	white-space: pre;
+}
+
+blockquote {
+	background: url(/images/quote.gif) no-repeat;
+	display: block;
+	font-weight: bold;
+	padding-left: 28px;
+}
+
+h1,h2,h3 {padding-top: 6px; color: #553; margin-bottom: 4px;}
+
+/* misc */
+.clearer {clear: both; font-size: 0;}
+.left {float: left;}
+.right {float: right;}
+
+/* structure */
+.inner-container {
+	border: 2px solid #D7D7D2;
+	background: #FFF;
+	font-size: 1.2em;
+	margin: 0 auto;
+	padding: 10px;
+	width: 880px;
+}
+
+.outer-container {
+	background: url('/images/container.jpg') no-repeat center bottom;
+	padding-bottom: 30px;
+}
+
+/* headere & title */
+.top {
+	height: 20px;
+	margin-bottom: 5px;
+	font: normal 1em gulim,sans-serif;
+	text-align: right;
+	color:#838383;
+}
+.top a {
+	font-size: 1em;
+	color:#838383;
+	text-decoration: none;
+}
+input.searchfield { width: 175px; padding: 0px; border: 2px solid #ccc; font-size: .9em; }
+input.searchbutton { background: #575151; border: 0; padding: 0px; color: #fff; font-weight: bold; font-size: .9em; }
+
+.header {
+	background: #222 url('/images/header.jpg') no-repeat;
+	height: 100px;
+	margin-bottom: 5px;
+	text-align: center;
+}
+.header .title {
+	color: #FFF;
+	padding-top: 15px;
+}
+.header .title .sitename a {
+	border-bottom: 1px dashed #657382;
+	color: #FFF;
+	font: normal 3em sans-serif;
+	padding-bottom: 2px;
+	text-decoration: none;
+}
+.header .title .t_low {
+	color: #FF0000;
+	font: normal 1em sans-serif;
+	vertical-align: top;
+}
+.header .title a:hover {border-color: #F60;}
+.header .title .slogan {
+	font: normal 1.1em Verdana,sans-serif;
+	padding-top: 6px;
+}
+
+/* path */
+.path {
+	background: #949490;
+	color: #FFF;
+	font: normal 1.1em gulim,sans-serif;
+	padding-top: 8px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 8px;
+	height:20px;
+}
+.path .nav {
+	float: left;
+	background: #949490;
+	color: #FFF;
+	font: normal 1.1em gulim,sans-serif;
+	padding-top: 3px;
+}
+.path a {
+	color: #FAFAFA;
+	text-decoration: none;
+}
+.path a:hover {
+	color: #FFE;
+	text-decoration: underline;
+}
+
+/* main */
+.main {
+	background: url(/images/main.gif) repeat-y;
+	border-top: 4px solid #FFF;
+	padding: 8px 12px 0 0;
+}
+
+/* content */
+.content {
+	float: right;
+	width: 838px;
+}
+.content .descr {
+	color: #664;
+	font-size: 0.9em;
+	margin-bottom: 6px;
+}
+/*.content li {
+	list-style: url(/images/li.gif);
+	margin-left: 18px;
+}
+*/
+.content p {font-family: "gulim",sans-serif;}
+.content0 {
+	text-align: center;
+	width: 1000px;
+}
+
+/* navigation */
+.navigation {
+	float: left;
+	width: 210px;
+}
+.navigation h2 {
+	color: #5A5A43;
+	font: bold 1.1em gulim,sans-serif;
+	line-height: 30px;
+	margin: 0;
+	padding-left: 12px;
+}
+.navigation ul {
+	padding: 0;
+	border-top: 1px solid #EAEADA;
+}
+.navigation li {border-bottom: 1px solid #EAEADA;}
+.navigation li a {
+	font-size: 1.1em;
+	color: #554;
+	display: block;
+	padding: 8px 0 8px 5%;
+	text-decoration: none;
+	width: 95%;
+}
+.navigation li a:hover {
+	background: #F0F0EB;
+	color: #654;
+}
+.navigation #ad {
+text-align: center;
+padding: 20px 0 5px 0;
+width: 205px;
+border: 3px solid #eee;
+color: #ccc;
+height: 30px;
+margin: 5px 0 0 0px;
+}
+
+/* footer */
+.footer {
+	background: #949490;
+	color: #F7F7F2;
+	font: bold 1em gulim;
+	margin-top: 5px;
+	padding: 10px 12px;
+}
+.footer a {
+	color: #F7F7F2;
+	text-decoration: none;
+}
+.footer a:hover {color: #FFC;}
+.footer .right, .footer .right a {color: #C8C8C3;}
+.footer .right a:hover {color: #F7F7F2;}
+
+pre
+{
+    background-color: #fff;
+    font-family: "gulim" , "Courier New" ,Courier,mono,serif;
+    font-size: 12px;
+    color: blue;
+    padding: 5px;
+    border: 1px dashed blue;
+}
+
+.Code
+{
+	border: #8b4513 1px solid;
+	padding-right: 5px;
+	padding-left: 5px;
+	color: #000066;
+	font-family: 'Courier New' , Monospace;
+	background-color: #ff9933;
+}
+
+.subject_bold {
+	font: bold 1em gulim;
+}
+
+.page_current {
+	font: bold 1em gulim;
+	color: #000066;
+}

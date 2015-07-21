@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon version="0.2">
+	<title xml:lang="ko">푸시윙 회원 댓글 알리미</title>
+	<description xml:lang="ko">
+		회원이 작성한 게시물에 댓글이 등록되면 스마트폰으로 알려줍니다.
+	</description>
+	<version>0.5</version>
+	<date>2014-03-09</date>
+	<author email_address="hoksi@naver.com" link="http://www.pushwing.com/">
+		<name xml:lang="ko">불의회상</name>
+	</author>
+	<extra_vars>
+        <var name="server">
+            <title xml:lang="ko">Server</title>
+            <description xml:lang="ko">PushWing server 주소를 입력해 주세요.(기본값 : www.pushwing.com)</description>
+        </var>
+        <var name="client_id">
+            <title xml:lang="ko">Client ID</title>
+            <description xml:lang="ko">PushWing Client ID를 입력해 주세요.</description>
+        </var>
+        <var name="pushwing_id">
+            <title xml:lang="ko">Pushwing ID</title>
+            <description xml:lang="ko">PushWing ID를 입력해 주세요.</description>
+        </var>
+        <var name="pushwing_pw">
+            <title xml:lang="ko">Pushwing PassWord</title>
+            <description xml:lang="ko">PushWing 비밀번호를 입력해 주세요.</description>
+        </var>
+        <var name="pushwing_mnocol">
+            <title xml:lang="ko">사용자 정의 항목명</title>
+            <description xml:lang="ko">핸드폰 번호가 입력된 회원정보 사용자 정의 항목명</description>
+        </var>        
+    </extra_vars>
+</addon>
