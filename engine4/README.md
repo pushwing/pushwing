@@ -1,7 +1,8 @@
 # Pushwing Engine4
 
 레거시 `engine/`(순수 PHP)을 CodeIgniter 4 기반으로 재작성한 REST API 서버입니다.
-SQL Injection, 크리덴셜 하드코딩, `magic_quotes_gpc` 등 기존 보안 이슈를 모두 수정했습니다.
+SQL Injection, 크리덴셜 하드코딩, `magic_quotes_gpc` 등 기존 보안 이슈를 모두 수정하고,
+보안·성능 점검을 통해 추가 강화했습니다.
 
 ---
 
@@ -84,7 +85,12 @@ pushwing.fcmServerKey = YOUR_FCM_SERVER_KEY_HERE
 
 ### GET `/api/fd/{id}` — 푸시 내용 조회
 
-`push_end` 테이블의 id에 해당하는 푸시 상세를 반환합니다.
+device token 소유권 검증 후 반환합니다. `cd` 파라미터가 없거나 소유자가 다르면 404를 반환합니다.
+
+| 파라미터 | 위치 | 필수 | 설명 |
+|---------|------|------|------|
+| `id` | URL | Y | push_end ID |
+| `cd` | Query | Y | FCM device token (소유권 검증용) |
 
 ```json
 {
@@ -136,21 +142,22 @@ pushwing.fcmServerKey = YOUR_FCM_SERVER_KEY_HERE
 engine4/
 ├── app/
 │   ├── Controllers/
-│   │   └── Api.php           # 7개 API 엔드포인트
+│   │   └── Api.php             # 7개 API 엔드포인트
 │   ├── Models/
-│   │   ├── PushModel.php     # 디바이스 등록, 푸시 조회
-│   │   ├── ChecksModel.php   # 플래그/버전 조회
-│   │   ├── AdReportModel.php # 광고 노출/클릭 리포트
-│   │   └── NoticeModel.php   # 공지사항
+│   │   ├── PushModel.php       # 디바이스 등록(UPSERT), 푸시 조회(소유권 검증)
+│   │   ├── ChecksModel.php     # 플래그/버전 조회 (단일 쿼리)
+│   │   ├── AdReportModel.php   # 광고 노출/클릭 리포트
+│   │   └── NoticeModel.php     # 공지사항
 │   ├── Filters/
-│   │   └── ApiFilter.php     # CORS + Content-Type 공통 처리
+│   │   ├── ApiFilter.php       # CORS + Content-Type 공통 처리
+│   │   └── RateLimitFilter.php # Rate Limiting (IP + URI 단위)
 │   └── Config/
-│       ├── Routes.php        # RESTful 라우팅
-│       └── Filters.php       # 필터 등록
-├── public/                   # DocumentRoot (index.php, .htaccess)
-├── writable/                 # 캐시, 로그, 세션
-├── .env.example              # 설정 템플릿
-└── .env                      # 실제 설정 (gitignore)
+│       ├── Routes.php          # RESTful 라우팅
+│       └── Filters.php         # 필터 등록
+├── public/                     # DocumentRoot (index.php, .htaccess)
+├── writable/                   # 캐시, 로그, 세션
+├── .env.example                # 설정 템플릿
+└── .env                        # 실제 설정 (gitignore)
 ```
 
 ---
@@ -161,9 +168,17 @@ engine4/
 |------|-------------------|------------------|
 | DB 쿼리 | 문자열 직접 연결 → SQL Injection 위험 | CI4 Query Builder (prepared statements) |
 | 크리덴셜 | 소스 코드에 하드코딩 | `.env` 환경변수로 분리 |
-| 입력 검증 | `strip_tags` + 수동 체크 | CI4 Validation 규칙 |
+| 입력 검증 | `strip_tags` + 수동 체크 | CI4 Validation + 전화번호 정규식 |
 | `magic_quotes_gpc` | 레거시 코드 포함 | PHP 8 + CI4로 완전 제거 |
 | CORS | 미처리 | `ApiFilter`로 공통 처리 |
+| 보안 헤더 | 없음 | `secureheaders` 전역 적용 |
+| 비정상 문자 | 미차단 | `invalidchars` 전역 적용 |
+| HTTPS 강제 | 없음 | `forcehttps` 활성화 |
+| IDOR | 없음 | device token 소유권 검증 |
+| Rate Limiting | 없음 | IP+URI 단위 분당 횟수 제한 |
+| Race condition | SELECT→INSERT TOCTOU | INSERT ON DUPLICATE KEY UPDATE |
+| 쿼리 수 (flags) | 3회 | 1회 (WHERE IN + array_column) |
+| 캐싱 | 없음 | `/api/go` 5분, `/api/nl` 10분 |
 | auto-routing | 사용 | 비활성화, 명시적 라우팅만 허용 |
 | PHP 버전 | PHP 5.x | PHP 8.2 이상 |
 

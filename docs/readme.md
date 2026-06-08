@@ -14,8 +14,9 @@
 5. [설치 및 설정 (레거시 engine/)](#설치-및-설정-레거시-engine)
 6. [설치 및 설정 (engine4/ — 권장)](#설치-및-설정-engine4--권장)
 7. [API 엔드포인트](#api-엔드포인트)
-8. [주의사항 및 보안](#주의사항-및-보안)
-9. [기여자](#기여자)
+8. [보안 및 성능 점검 내역](#보안-및-성능-점검-내역)
+9. [주의사항 및 보안](#주의사항-및-보안)
+10. [기여자](#기여자)
 
 ---
 
@@ -253,14 +254,18 @@ Apache `.htaccess` 는 `engine4/public/.htaccess` 에 이미 포함되어 있습
 
 ### `GET /api/fd/{id}` — 푸시 내용 조회
 
-`push_end` 테이블의 id에 해당하는 푸시 상세 내용을 반환합니다.
+device token 소유권 검증 후 반환합니다. `cd`가 없거나 소유자가 다르면 404를 반환합니다.
+
+| 파라미터 | 위치 | 필수 | 설명 |
+|---------|------|------|------|
+| `id` | URL | Y | push_end ID |
+| `cd` | Query | Y | FCM device token (소유권 검증용) |
 
 **응답 예시**
 
 ```json
 {
   "id": "42",
-  "hp": "01012345678",
   "subject": "새 댓글이 달렸습니다",
   "contents": "...",
   "url": "https://example.com/...",
@@ -315,6 +320,48 @@ Apache `.htaccess` 는 `engine4/public/.htaccess` 에 이미 포함되어 있습
   "hit": "120",
   "reg_date": "2014-03-01 10:00:00"
 }
+```
+
+---
+
+## 보안 및 성능 점검 내역
+
+`engine4/` 에 대해 보안·성능 점검을 수행하여 아래 이슈를 수정했습니다.
+
+### 🔴 보안 (High)
+
+| 항목 | 내용 | 수정 방법 |
+|------|------|----------|
+| **IDOR** | `/api/fd/{id}` — 인증 없이 타인의 푸시 내용 열람 가능 | `cd`(device token) 파라미터 필수화, `push_db` 역조회로 소유자 검증 |
+| **보안 헤더 누락** | X-Frame-Options, X-Content-Type-Options 등 미설정 | `secureheaders` 필터 전역 활성화 |
+| **비정상 문자 미차단** | NUL 바이트 등 비정상 문자 허용 | `invalidchars` 필터 전역 활성화 |
+| **HTTPS 미강제** | 평문 HTTP 요청 허용 | `forcehttps` 활성화, 개발 시 `.env`로 우회 |
+
+### 🟠 보안 (Medium)
+
+| 항목 | 내용 | 수정 방법 |
+|------|------|----------|
+| **Rate Limiting 없음** | `/api/sd` DB 플러딩, `/api/vr·cr` 리포트 어뷰징 가능 | `RateLimitFilter` 생성 — `/api/sd` 분당 10회, `/api/vr·cr` 분당 30회 제한 |
+| **전화번호 포맷 미검증** | `hp` 파라미터에 임의 문자열 허용 | `regex_match[/^01[016789][0-9]{7,8}$/]` 규칙 추가 |
+| **Race condition (TOCTOU)** | SELECT → INSERT/UPDATE 사이 동시 요청 시 중복 INSERT 가능 | `INSERT ON DUPLICATE KEY UPDATE` 단일 원자 쿼리로 교체 |
+
+### 🟡 성능
+
+| 항목 | 내용 | 수정 방법 |
+|------|------|----------|
+| **쿼리 중복** | `ChecksModel::getFlags()` 동일 테이블에 쿼리 3회 | `WHERE IN` 1회 쿼리 + `array_column()` 매핑 |
+| **캐시 없음** | `/api/go`, `/api/nl` 매 요청마다 DB 조회 | `/api/go` 5분, `/api/nl` 10분 캐싱 적용 |
+| **모델 반복 생성** | 컨트롤러 메서드마다 `new Model()` 호출 | `initController()` 에서 1회 생성으로 통합 |
+
+### 필터 적용 현황
+
+```
+모든 요청:   invalidchars (before) → secureheaders (after)
+api/*:       apif — CORS + Content-Type (before/after)
+POST api/sd: ratelimit:10 — 분당 10회
+POST api/vr: ratelimit:30 — 분당 30회
+POST api/cr: ratelimit:30 — 분당 30회
+전체:        forcehttps (HTTPS 강제)
 ```
 
 ---
