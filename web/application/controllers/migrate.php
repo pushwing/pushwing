@@ -2,6 +2,13 @@
 
 class Migrate extends CI_Controller {
 
+	public function __construct()
+    {
+        parent::__construct();
+        // 관리자(최고 권한)만 실행 가능
+        is_admin_login('9');
+    }
+
 	public function index()
 	{
         $this->load->library('migration');

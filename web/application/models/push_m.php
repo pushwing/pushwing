@@ -145,7 +145,7 @@ class Push_m extends CI_Model
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_HEADER, true);

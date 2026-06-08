@@ -236,13 +236,19 @@ class Client extends CI_Controller
 
             if ($user_id)
             {
-                //mysql 유저 생성 및 테이블 권한 주기
-                $sql = "GRANT INSERT ON  pushwing.push_wait TO `".$post['mysql_id']."`@`".$post['ip_address']."`
-                IDENTIFIED BY '".$post['mysql_pass']."' WITH GRANT OPTION";
-                $this->db->query($sql);
+                // mysql_id: 영문·숫자·언더스코어만 허용 (SQL Injection 방지)
+                // ip_address: IP 형식 검증
+                $mysql_id  = preg_replace('/[^a-zA-Z0-9_]/', '', $post['mysql_id']);
+                $ip_address = filter_var($post['ip_address'], FILTER_VALIDATE_IP) ? $post['ip_address'] : '';
+                $mysql_pass = $this->db->escape_str($post['mysql_pass']);
 
-                $sql1 = "FLUSH PRIVILEGES";
-                $this->db->query($sql1);
+                if ($mysql_id && $ip_address) {
+                    $sql = "GRANT INSERT ON pushwing.push_wait TO `{$mysql_id}`@`{$ip_address}`
+                    IDENTIFIED BY '{$mysql_pass}' WITH GRANT OPTION";
+                    $this->db->query($sql);
+
+                    $this->db->query("FLUSH PRIVILEGES");
+                }
 
                 //contact_id와 연동처리
                 if($post['contact_id'] != 0)
@@ -270,18 +276,6 @@ class Client extends CI_Controller
         }
     }
 
-    function test_mail()
-    {
-        $post = array(
-            'charge_email' => 'blumine@naver.com',
-            'client_id' => '47',
-            'mysql_id' => 'jb',
-            'mysql_pass' => 'jb!',
-            'ip_address' => '127.0.0.1'
-        );
-
-        $this->send_email($post);
-    }
     private function send_email($post)
     {
         $this->load->library('email');

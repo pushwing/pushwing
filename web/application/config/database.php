@@ -52,10 +52,10 @@ $db['default']['username'] = 'mysql_id';
 $db['default']['password'] = 'mysql_password';
 
 $db['default']['database'] = 'pushwing';
-$db['default']['dbdriver'] = 'mysql';
+$db['default']['dbdriver'] = 'mysqli'; // mysql 드라이버는 PHP 7에서 제거됨
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = false;
-$db['default']['db_debug'] = TRUE;
+$db['default']['db_debug'] = FALSE; // 운영 시 DB 오류 화면 노출 방지
 $db['default']['cache_on'] = FALSE;
 $db['default']['cachedir'] = '';
 $db['default']['char_set'] = 'utf8';
