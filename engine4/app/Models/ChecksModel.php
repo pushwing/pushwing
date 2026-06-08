@@ -10,40 +10,33 @@ class ChecksModel extends Model
     protected $primaryKey = 'id';
 
     /**
-     * 앱 시작 시 필요한 플래그 정보 반환
+     * 앱 시작 시 필요한 플래그 정보를 쿼리 1회로 반환
      *
      * @return array|null ['code_value' => ..., 'and_ver' => ..., 'ios_ver' => ..., 'update' => ...]
      */
     public function getFlags(): ?array
     {
-        $db = \Config\Database::connect();
+        $rows = $this->select('code_name, code_value')
+            ->whereIn('code_name', ['ad_start', 'cur_ver', 'update'])
+            ->findAll();
 
-        $adStart = $db->table('checks')
-            ->select('code_value')
-            ->where('code_name', 'ad_start')
-            ->get()->getRowArray();
-
-        $curVer = $db->table('checks')
-            ->select('code_value')
-            ->where('code_name', 'cur_ver')
-            ->get()->getRowArray();
-
-        $update = $db->table('checks')
-            ->select('code_value')
-            ->where('code_name', 'update')
-            ->get()->getRowArray();
-
-        if (! $adStart) {
+        if (empty($rows)) {
             return null;
         }
 
-        $ver = explode('|', $curVer['code_value'] ?? '|');
+        $map = array_column($rows, 'code_value', 'code_name');
+
+        if (! isset($map['ad_start'])) {
+            return null;
+        }
+
+        $ver = explode('|', $map['cur_ver'] ?? '|');
 
         return [
-            'code_value' => $adStart['code_value'],
+            'code_value' => $map['ad_start'],
             'and_ver'    => $ver[0] ?? '',
             'ios_ver'    => $ver[1] ?? '',
-            'update'     => $update['code_value'] ?? '0',
+            'update'     => $map['update'] ?? '0',
         ];
     }
 }

@@ -10,20 +10,43 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Api extends BaseController
 {
+    private ChecksModel  $checksModel;
+    private PushModel    $pushModel;
+    private AdReportModel $adReportModel;
+    private NoticeModel  $noticeModel;
+
+    public function initController(
+        \CodeIgniter\HTTP\RequestInterface $request,
+        \CodeIgniter\HTTP\ResponseInterface $response,
+        \Psr\Log\LoggerInterface $logger
+    ): void {
+        parent::initController($request, $response, $logger);
+
+        $this->checksModel   = new ChecksModel();
+        $this->pushModel     = new PushModel();
+        $this->adReportModel = new AdReportModel();
+        $this->noticeModel   = new NoticeModel();
+    }
+
     /**
      * 앱 시작 시 광고 on/off 플래그, 앱 버전, 업데이트 여부 반환
+     * 결과는 5분간 캐싱 (거의 변경되지 않는 설정값)
      *
      * GET /api/go
-     *
-     * @return ResponseInterface
      */
     public function go(): ResponseInterface
     {
-        $model = new ChecksModel();
-        $result = $model->getFlags();
+        $cache  = cache();
+        $result = $cache->get('api_go_flags');
 
-        if (! $result) {
-            return $this->response->setStatusCode(418)->setJSON(['message' => 'no data']);
+        if ($result === null) {
+            $result = $this->checksModel->getFlags();
+
+            if (! $result) {
+                return $this->response->setStatusCode(418)->setJSON(['message' => 'no data']);
+            }
+
+            $cache->save('api_go_flags', $result, 300); // 5분
         }
 
         return $this->response->setJSON($result);
@@ -34,15 +57,13 @@ class Api extends BaseController
      *
      * POST /api/sd
      * Body: hp(휴대폰번호), cd(device token), os(1=iOS, 2=Android)
-     *
-     * @return ResponseInterface
      */
     public function sd(): ResponseInterface
     {
         $rules = [
-            'hp' => 'required|max_length[20]',
-            'cd' => 'required|max_length[255]',
-            'os' => 'required|in_list[1,2]',
+            'hp' => ['label' => '휴대폰번호', 'rules' => 'required|regex_match[/^01[016789][0-9]{7,8}$/]'],
+            'cd' => ['label' => 'device token', 'rules' => 'required|max_length[255]'],
+            'os' => ['label' => 'OS', 'rules' => 'required|in_list[1,2]'],
         ];
 
         if (! $this->validate($rules)) {
@@ -51,28 +72,30 @@ class Api extends BaseController
                 ->setJSON(['message' => $this->validator->getErrors()]);
         }
 
-        $hp = $this->request->getPost('hp');
-        $cd = $this->request->getPost('cd');
-        $os = $this->request->getPost('os');
-
-        $model = new PushModel();
-        $message = $model->registerDevice($hp, $cd, $os);
+        $message = $this->pushModel->registerDevice(
+            $this->request->getPost('hp'),
+            $this->request->getPost('cd'),
+            $this->request->getPost('os')
+        );
 
         return $this->response->setJSON(['message' => $message]);
     }
 
     /**
      * push_end id에 해당하는 푸시 내용 반환
+     * device token 소유권 검증 후 반환 (IDOR 방어)
      *
-     * GET /api/fd/{id}
-     *
-     * @param int $id
-     * @return ResponseInterface
+     * GET /api/fd/{id}?cd={device_token}
      */
     public function fd(int $id): ResponseInterface
     {
-        $model = new PushModel();
-        $result = $model->getPushEnd($id);
+        $cd = $this->request->getGet('cd');
+
+        if (empty($cd)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'device token required']);
+        }
+
+        $result = $this->pushModel->getPushEnd($id, $cd);
 
         if (! $result) {
             return $this->response->setStatusCode(404)->setJSON(['message' => 'not found']);
@@ -85,19 +108,15 @@ class Api extends BaseController
      * 광고 노출 리포트
      *
      * POST /api/vr
-     * Body: sid(광고번호), cd(클라이언트코드), ty(위치 1=초기화면 2=푸시내용),
-     *       av(앱버전), hp(휴대폰번호), sq(푸시번호)
-     *
-     * @return ResponseInterface
      */
     public function vr(): ResponseInterface
     {
         $rules = [
             'sid' => 'required|integer',
-            'cd'  => 'required|max_length[50]',
+            'cd'  => 'required|max_length[255]',
             'ty'  => 'required|in_list[1,2]',
             'av'  => 'required|max_length[20]',
-            'hp'  => 'required|max_length[20]',
+            'hp'  => 'required|regex_match[/^01[016789][0-9]{7,8}$/]',
             'sq'  => 'required|integer',
         ];
 
@@ -107,7 +126,7 @@ class Api extends BaseController
                 ->setJSON(['message' => $this->validator->getErrors()]);
         }
 
-        $data = [
+        $this->adReportModel->insertViewReport([
             'ad_seq'      => $this->request->getPost('sid'),
             'client_code' => $this->request->getPost('cd'),
             'type'        => $this->request->getPost('ty'),
@@ -117,10 +136,7 @@ class Api extends BaseController
             'view_date'   => time(),
             'ymd'         => date('ymd'),
             'time'        => date('G'),
-        ];
-
-        $model = new AdReportModel();
-        $model->insertViewReport($data);
+        ]);
 
         return $this->response->setJSON(['message' => 'success']);
     }
@@ -129,18 +145,15 @@ class Api extends BaseController
      * 광고 클릭 리포트
      *
      * POST /api/cr
-     * Body: sid(광고번호), cd(클라이언트코드), ty(위치), av(앱버전), hp(휴대폰번호), sq(푸시번호)
-     *
-     * @return ResponseInterface
      */
     public function cr(): ResponseInterface
     {
         $rules = [
             'sid' => 'required|integer',
-            'cd'  => 'required|max_length[50]',
+            'cd'  => 'required|max_length[255]',
             'ty'  => 'required|in_list[1,2]',
             'av'  => 'required|max_length[20]',
-            'hp'  => 'required|max_length[20]',
+            'hp'  => 'required|regex_match[/^01[016789][0-9]{7,8}$/]',
             'sq'  => 'required|integer',
         ];
 
@@ -150,7 +163,7 @@ class Api extends BaseController
                 ->setJSON(['message' => $this->validator->getErrors()]);
         }
 
-        $data = [
+        $this->adReportModel->insertClickReport([
             'ad_seq'      => $this->request->getPost('sid'),
             'client_code' => $this->request->getPost('cd'),
             'type'        => $this->request->getPost('ty'),
@@ -160,25 +173,26 @@ class Api extends BaseController
             'click_date'  => time(),
             'ymd'         => date('ymd'),
             'time'        => date('G'),
-        ];
-
-        $model = new AdReportModel();
-        $model->insertClickReport($data);
+        ]);
 
         return $this->response->setJSON(['message' => 'success']);
     }
 
     /**
      * 공지사항 목록 (최근 10건)
+     * 결과는 10분간 캐싱
      *
      * GET /api/nl
-     *
-     * @return ResponseInterface
      */
     public function nl(): ResponseInterface
     {
-        $model = new NoticeModel();
-        $result = $model->getList();
+        $cache  = cache();
+        $result = $cache->get('api_notice_list');
+
+        if ($result === null) {
+            $result = $this->noticeModel->getList();
+            $cache->save('api_notice_list', $result, 600); // 10분
+        }
 
         return $this->response->setJSON($result);
     }
@@ -187,14 +201,10 @@ class Api extends BaseController
      * 공지사항 상세
      *
      * GET /api/nv/{id}
-     *
-     * @param int $id
-     * @return ResponseInterface
      */
     public function nv(int $id): ResponseInterface
     {
-        $model = new NoticeModel();
-        $result = $model->getView($id);
+        $result = $this->noticeModel->getView($id);
 
         if (! $result) {
             return $this->response->setStatusCode(404)->setJSON(['message' => 'not found']);

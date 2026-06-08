@@ -3,6 +3,7 @@
 namespace Config;
 
 use App\Filters\ApiFilter;
+use App\Filters\RateLimitFilter;
 use CodeIgniter\Config\Filters as BaseFilters;
 use CodeIgniter\Filters\Cors;
 use CodeIgniter\Filters\CSRF;
@@ -26,8 +27,9 @@ class Filters extends BaseFilters
      * or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
-        'apif'          => ApiFilter::class,
-        'csrf'          => CSRF::class,
+        'apif'      => ApiFilter::class,
+        'ratelimit' => RateLimitFilter::class,
+        'csrf'      => CSRF::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
@@ -53,13 +55,13 @@ class Filters extends BaseFilters
      */
     public array $required = [
         'before' => [
-            // 'forcehttps', // 개발 환경에서는 비활성화. 운영 시 주석 해제
-            'pagecache',  // Web Page Caching
+            'forcehttps', // HTTPS 강제 (개발 시 .env에서 app.forceGlobalSecureRequests=false 로 우회)
+            'pagecache',
         ],
         'after' => [
-            'pagecache',   // Web Page Caching
-            'performance', // Performance Metrics
-            'toolbar',     // Debug Toolbar
+            'pagecache',
+            'performance',
+            'toolbar',
         ],
     ];
 
@@ -74,13 +76,10 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
+            'invalidchars', // 비정상 문자(NUL 등) 차단
         ],
         'after' => [
-            // 'honeypot',
-            // 'secureheaders',
+            'secureheaders', // X-Frame-Options, X-Content-Type-Options 등
         ],
     ];
 
@@ -109,6 +108,9 @@ class Filters extends BaseFilters
      * @var array<string, array<string, list<string>>>
      */
     public array $filters = [
-        'apif' => ['before' => ['api/*'], 'after' => ['api/*']],
+        'apif'             => ['before' => ['api/*'], 'after' => ['api/*']],
+        // 디바이스 등록은 분당 10회, 리포트는 분당 30회로 제한
+        'ratelimit:10'     => ['before' => ['api/sd']],
+        'ratelimit:30'     => ['before' => ['api/vr', 'api/cr']],
     ];
 }
